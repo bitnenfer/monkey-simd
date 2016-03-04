@@ -37,10 +37,8 @@ Class SIMD
 	Function BAndNot:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function BOr:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function BXor:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	' Float32x4 Shuffle
-	
-	'Function Shuffle:Void(destination:Float32x4, operand:Float32x4, mask:Int)
 End
 
+' Float32x4 Shuffle
 Function SIMD_Shuffle:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4, mask:Int) = "SIMD_SHUFFLE"
 Function SIMD_ShuffleHelper:Int(x:Int, y:Int, z:Int, w:Int) = "_MM_SHUFFLE"
