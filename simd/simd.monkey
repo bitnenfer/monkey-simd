@@ -10,6 +10,9 @@ Class @Float32x4 Extends Object="SSE_Float32x4"
 End
 
 Class SIMD
+	Function DestroyFloat32x4:Void(vector:Float32x4)
+	' Ref Count
+	Function GetReferenceCount:Int()
 	' Float32x4 Factory
 	Function MakeFloat32x4:Float32x4(x:Float, y:Float, z:Float, w:Float)
 	Function MakeFloat32x4Zero:Float32x4()
