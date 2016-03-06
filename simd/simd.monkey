@@ -2,6 +2,10 @@
 #Error "SIMD only supported on C++ targets"
 #Endif
 
+#CPP_MEM_ALIGNMENT = 16
+#CPP_USE_ALIGNED_ALLOC = True
+#CC_OPTS = "-std=c++11 -msse"
+
 Import "native/simd.${LANG}"
 
 Extern 
@@ -10,9 +14,6 @@ Class @Float32x4 Extends Object="SSE_Float32x4"
 End
 
 Class SIMD
-	Function DestroyFloat32x4:Void(vector:Float32x4)
-	' Ref Count
-	Function GetReferenceCount:Int()
 	' Float32x4 Factory
 	Function MakeFloat32x4:Float32x4(x:Float, y:Float, z:Float, w:Float)
 	Function MakeFloat32x4Zero:Float32x4()
