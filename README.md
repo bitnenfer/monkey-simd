@@ -7,6 +7,8 @@ SIMD module / wrapper for Monkey-X. Currently only C++ target supported. Tested 
 
 This module has been tested with version 85e of Monkey-X.
 
+ARM's NEON implemented but untested.
+
 Installation
 ---
 
@@ -77,10 +79,6 @@ Subtracts two Float32x4 and stores the result in a destination vector.
 
 Multiplies two Float32x4 and stores the result in a destination vector.
 
-##### Function SIMD.Div:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Divides two Float32x4 and stores the result in a destination vector.
-
 ##### Function SIMD.Min:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 
 Evaluates the smallest vector values and stores them in a destination vector.
@@ -129,22 +127,3 @@ Compare greater than between to vectors and stores result in destination vector.
 
 Compare greater than or equal between to vectors and stores result in destination vector.
 
-##### Function SIMD.CompareNotEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Compare not equal between to vectors and stores result in destination vector.
-
-##### Function SIMD.CompareNotLessThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Compare not less than between to vectors and stores result in destination vector.
-
-##### Function SIMD.CompareNotLessThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Compare not less than or equal between to vectors and stores result in destination vector.
-
-##### Function SIMD.CompareNotGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Compare not greater than between to vectors and stores result in destination vector.
-
-##### Function SIMD.CompareNotGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-
-Compare not greater than or equal between to vectors and stores result in destination vector.

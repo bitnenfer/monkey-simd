@@ -4,13 +4,20 @@
 
 #CPP_MEM_ALIGNMENT = 16
 #CPP_USE_ALIGNED_ALLOC = True
+' Enable sse for gcc/mingw
 #CC_OPTS = "-std=c++11 -msse"
 
-Import "native/simd.${LANG}"
+#If TARGET="android" Or TARGET="ios"
+' Use ARM's NEON
+Import "native/simd.neon.cpp"
+#Else
+' Use SSE/AVX
+Import "native/simd.cpp"
+#Endif
 
 Extern 
 
-Class @Float32x4 Extends Object="SSE_Float32x4"
+Class @Float32x4 Extends Object="SIMD_Float32x4"
 End
 
 Class SIMD
@@ -31,7 +38,6 @@ Class SIMD
 	Function Add:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function Sub:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function Mul:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function Div:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function Min:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function Max:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)	
 	Function Sqrt:Void(destination:Float32x4, source:Float32x4)
@@ -47,13 +53,8 @@ Class SIMD
 	Function CompareLowerThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function CompareNotEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function CompareNotLessThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function CompareNotLessThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function CompareNotGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function CompareNotGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 End
 
-' Float32x4 Shuffle
+' Float32x4 Shuffle.
 Function SIMD_Shuffle:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4, mask:Int) = "SIMD_SHUFFLE"
 Function SIMD_ShuffleHelper:Int(x:Int, y:Int, z:Int, w:Int) = "_MM_SHUFFLE"
