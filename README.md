@@ -7,10 +7,6 @@ SIMD module / wrapper for Monkey-X. Currently only C++ target supported. Tested 
 
 This module has been tested with version 85e of Monkey-X.
 
-Good resource:
-
-[Intel's Intrisics Guide](https://software.intel.com/sites/landingpage/IntrinsicsGuide/)
-
 Installation
 ---
 
@@ -22,7 +18,7 @@ This modification of the lang.cpp file includes aligned memory allocations neede
 
 If you are building a project using MinGW you should backup and replace the file *[Monkey Directory]/targets/glfw3/template/gcc_winnt/Makefile* with *monkey-simd/targets/glfw3/template/gcc_winnt/Makefile*
 
-SIMD API Spec.
+Monkey-SIMD API Spec.
 ---
 
 ##### Float32x4
