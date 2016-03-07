@@ -8,7 +8,7 @@
 
 #If TARGET="android" Or TARGET="ios"
 ' Use ARM's NEON
-#CC_OPTS = "-mfpu=neon"
+#CC_OPTS = "-mfpu=neon -mfloat-abi=softfp"
 Import "native/simd.neon.cpp"
 #Else
 ' Use SSE/AVX
