@@ -122,22 +122,63 @@ struct SIMD
 		destination->vector = _mm_max_ps(operand0->vector, operand1->vector);
 	}
 	// SSE_Float32x4 Logical Operations
-	FORCE_INLINE static void BAnd(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	FORCE_INLINE static void LogicAnd(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
 	{
 		destination->vector = _mm_and_ps(operand0->vector, operand1->vector);
 	}
-	FORCE_INLINE static void BAndNot(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	FORCE_INLINE static void LogicAndNot(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
 	{
 		destination->vector = _mm_andnot_ps(operand0->vector, operand1->vector);
 	}
-	FORCE_INLINE static void BOr(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	FORCE_INLINE static void LogicOr(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
 	{
 		destination->vector = _mm_or_ps(operand0->vector, operand1->vector);
 	}
-	FORCE_INLINE static void BXor(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	FORCE_INLINE static void LogicXor(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
 	{
 		destination->vector = _mm_xor_ps(operand0->vector, operand1->vector);
 	}
+	// Compare instructions
+	FORCE_INLINE static void CompareEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpeq_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareLowerThan(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmplt_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareLowerThanOrEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmple_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareGreaterThan(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpgt_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareGreaterThanOrEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpge_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareNotEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpneq_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareNotLessThan(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpnlt_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareNotLessThanOrEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmple_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareNotGreaterThan(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpngt_ps(operand0->vector, operand1->vector);
+	}
+	FORCE_INLINE static void CompareNotGreaterThanOrEqual(SSE_Float32x4* destination, SSE_Float32x4* operand0, SSE_Float32x4* operand1)
+	{
+		destination->vector = _mm_cmpnge_ps(operand0->vector, operand1->vector);
+	}
 	// Shuffle Macro
-#define SIMD_SHUFFLE(destination, operand0, operand1, mask) destination->vector = _mm_shuffle_ps(operand0->vector, operand1->vector, mask);
+	#define SIMD_SHUFFLE(destination, operand0, operand1, mask) destination->vector = _mm_shuffle_ps(operand0->vector, operand1->vector, mask);
 };

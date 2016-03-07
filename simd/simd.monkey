@@ -37,10 +37,21 @@ Class SIMD
 	Function Sqrt:Void(destination:Float32x4, source:Float32x4)
 	Function Rsqrt:Void(destination:Float32x4, source:Float32x4)
 	' Float32x4 Logical Operations
-	Function BAnd:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function BAndNot:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function BOr:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
-	Function BXor:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function LogicAnd:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function LogicAndNot:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function LogicOr:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function LogicXor:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	' Float32x4 Compare Operations
+	Function CompareEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareLowerThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareLowerThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareNotEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareNotLessThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareNotLessThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareNotGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function CompareNotGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 End
 
 ' Float32x4 Shuffle
