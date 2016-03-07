@@ -22,7 +22,7 @@ Class SIMD
 	' Float32x4 Set Operations
 	Function Set:Void(destination:Float32x4, x:Float, y:Float, z:Float, w:Float)
 	Function SetZero:Void(destination:Float32x4)
-	Function SetOne:Void(destination:Float32x4)
+	Function SetOne:Void(destination:Float32x4, x:Float)
 	Function SetReverse:Void(destination:Float32x4, x:Float, y:Float, z:Float, w:Float)
 	' Float32x4 Load and Store
 	Function Load:Void(destination:Float32x4, source:Float[])
