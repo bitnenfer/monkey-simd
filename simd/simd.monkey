@@ -5,17 +5,16 @@
 #If LANG="cpp"
 #CPP_MEM_ALIGNMENT = 16
 #CPP_USE_ALIGNED_ALLOC = True
-' Enable sse for gcc/mingw
 
 #If TARGET="android" Or TARGET="ios"
 ' Use ARM's NEON
 #CC_OPTS = "-mfpu=neon -mfloat-abi=softfp"
-Import "native/simd.neon.cpp"
 #Else
 ' Use SSE/AVX
 #CC_OPTS = "-msse"
-Import "native/simd.cpp"
 #Endif
+
+Import "native/simd.cpp"
 
 Extern 
 
