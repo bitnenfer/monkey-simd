@@ -25,7 +25,7 @@ Monkey-SIMD API Spec.
 
 ##### Float32x4
 
-SIMD Pure old data.
+SIMD Plain Old Data.
 
 ##### Function SIMD.MakeFloat32x4:Float32x4(x:Float, y:Float, z:Float, w:Float)
 
