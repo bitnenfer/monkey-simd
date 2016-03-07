@@ -8,7 +8,7 @@ struct SIMD_Float32x4 : public Object
 	float32x4_t vector;
 };
 
-struct SIMD
+struct SIMD // No namespace support on monkey-x
 {
 	// SIMD_Float32x4 Factory
 	FORCE_INLINE static SIMD_Float32x4* MakeFloat32x4(float x, float y, float z, float w)
@@ -64,9 +64,9 @@ struct SIMD
 		float32_array[2] = monkey_array[2];
 		float32_array[3] = monkey_array[3];
 		
-		vector_ptr->vector = vld1_f32(float32_array);
+		vector_ptr->vector = vld1q_f32(float32_array);
 	#else
-		vector_ptr->vector = vld1_f32(&monkey_array[0]);
+		vector_ptr->vector = vld1q_f32(&monkey_array[0]);
 	#endif
 	}
 	// SIMD_Float32x4 Store Operations
@@ -80,7 +80,7 @@ struct SIMD
 		monkey_array[2] = float32_array[2];
 		monkey_array[3] = float32_array[3];
 	#else
-		vst1_f32(&monkey_array[0], vector_ptr->vector);
+		vst1q_f32(&monkey_array[0], vector_ptr->vector);
 	#endif
 	}
 	// SIMD_Float32x4 Arithmetic Operations
@@ -102,7 +102,7 @@ struct SIMD
 	}
 	FORCE_INLINE static void Rsqrt(SIMD_Float32x4* destination, SIMD_Float32x4* source)
 	{
-		destination->vector = vrsqrtsq_f32(source->vector);
+		//destination->vector = vrsqrtsq_f32(source->vector);
 	}
 	FORCE_INLINE static void Min(SIMD_Float32x4* destination, SIMD_Float32x4* operand0, SIMD_Float32x4* operand1)
 	{
