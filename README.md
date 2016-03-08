@@ -3,11 +3,13 @@
 About
 ---
 
-SIMD module / wrapper for Monkey-X. Currently only C++ target supported. Tested with MSVC and MinGW.
+SIMD module / wrapper for Monkey-X. Currently C++ target and experimental JavaScript supported. Tested with MSVC, MinGW and ARM GCC.
 
 This module has been tested with version 85e of Monkey-X.
 
-ARM's NEON implemented but untested.
+ARM's NEON tested only on Raspberry PI 2.
+
+SIMD.js is still experimental technology. You can read more about it [here](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/SIMD). 
 
 Installation
 ---
@@ -19,6 +21,20 @@ Copy the file found on *monkey-simd/modules/monkey/native/lang.cpp* into *[Monke
 This modification of the lang.cpp file includes aligned memory allocations needed by SSE/AVX instructions.
 
 If you are building a project using MinGW you should backup and replace the file *[Monkey Directory]/targets/glfw3/template/gcc_winnt/Makefile* with *monkey-simd/targets/glfw3/template/gcc_winnt/Makefile*
+
+Important
+---
+
+The NEON code doesn't implement 
+
+*SIMD_Shuffle*
+
+*SIMD.Sqrt*
+
+*SIMD.Rsqrt*
+
+To test HTML5 target you must have [Firefox Nightly Build](https://nightly.mozilla.org/). A polyfill can be enabled for unsupported browsers using the preprocessor macro **#SIMD_JS_POLYFILL = True**.
+
 
 Monkey-SIMD API Spec.
 ---
