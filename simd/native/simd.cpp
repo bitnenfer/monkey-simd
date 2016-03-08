@@ -40,7 +40,7 @@ struct SIMD // No namespace support on monkey-x
 	// SIMD_Float32x4 Set Operations
 	FORCE_INLINE static void Set(SIMD_Float32x4* vector_ptr, float x, float y, float z, float w)
 	{
-		const float32_t ptr[4] = {x, y, z, w};
+		const float32_t ptr[4] = {w, z, y, x};
 		vector_ptr->vector = vld1q_f32(ptr);
 	}
 	FORCE_INLINE static void SetZero(SIMD_Float32x4* vector_ptr)
@@ -53,19 +53,19 @@ struct SIMD // No namespace support on monkey-x
 	}
 	FORCE_INLINE static void SetReverse(SIMD_Float32x4* vector_ptr, float x, float y, float z, float w)
 	{
-		const float32_t ptr[4] = {w, z, y, x};
+		const float32_t ptr[4] = {x, y, z, w};
 		vector_ptr->vector = vld1q_f32(ptr);
 	}
 	// SIMD_Float32x4 Load Operations
 	FORCE_INLINE static void Load(SIMD_Float32x4* vector_ptr, Array<Float> monkey_array)
 	{
 	#if CFG_CPP_DOUBLE_PRECISION_FLOATS
-		NEON_ALIGN16 const float32_t float32_array[4];
-		float32_array[0] = monkey_array[0];
-		float32_array[1] = monkey_array[1];
-		float32_array[2] = monkey_array[2];
-		float32_array[3] = monkey_array[3];
-		
+		NEON_ALIGN16 const float32_t float32_array[4] = {
+			monkey_array[0],
+			monkey_array[1],
+			monkey_array[2],
+			monkey_array[3]
+		};		
 		vector_ptr->vector = vld1q_f32(float32_array);
 	#else
 		vector_ptr->vector = vld1q_f32(&monkey_array[0]);
@@ -76,7 +76,7 @@ struct SIMD // No namespace support on monkey-x
 	{
 	#if CFG_CPP_DOUBLE_PRECISION_FLOATS
 		NEON_ALIGN16 float32_t float32_array[4];
-		vst1_f32(float32_array, vector_ptr->vector);
+		vst1q_f32(float32_array, vector_ptr->vector);
 		monkey_array[0] = float32_array[0];
 		monkey_array[1] = float32_array[1];
 		monkey_array[2] = float32_array[2];
@@ -100,11 +100,11 @@ struct SIMD // No namespace support on monkey-x
 	}
 	FORCE_INLINE static void Sqrt(SIMD_Float32x4* destination, SIMD_Float32x4* source)
 	{
-		// No implementation.
+	// No implementation.
 	}
 	FORCE_INLINE static void Rsqrt(SIMD_Float32x4* destination, SIMD_Float32x4* source)
 	{
-		//destination->vector = vrsqrtsq_f32(source->vector);
+	//destination->vector = vrsqrtsq_f32(source->vector);
 	}
 	FORCE_INLINE static void Min(SIMD_Float32x4* destination, SIMD_Float32x4* operand0, SIMD_Float32x4* operand1)
 	{
@@ -131,7 +131,7 @@ struct SIMD // No namespace support on monkey-x
 	{
 		destination->vector = (float32x4_t)veorq_s32((int32x4_t)operand0->vector, (int32x4_t)operand1->vector);
 	}
-		// Compare instructions
+	// SIMD_Float32x4 Compare instructions
 	FORCE_INLINE static void CompareEqual(SIMD_Float32x4* destination, SIMD_Float32x4* operand0, SIMD_Float32x4* operand1)
 	{
 		destination->vector = (float32x4_t)vceqq_f32(operand0->vector, operand1->vector);
@@ -153,8 +153,8 @@ struct SIMD // No namespace support on monkey-x
 		destination->vector = (float32x4_t)vcgeq_f32(operand0->vector, operand1->vector);
 	}
 	// Shuffle Macro
-	#define SIMD_SHUFFLE(destination, operand0, operand1, mask)
-	#define _MM_SHUFFLE(x, y, z, w)
+	// Not implementation for shuffle in NEON. Need to implement it.
+	#define SIMD_SHUFFLE(destination, operand0, operand1, x, y, z, w)
 };
 
 
@@ -319,6 +319,6 @@ struct SIMD // No namespace support on Monkey-X
 		destination->vector = _mm_cmpge_ps(operand0->vector, operand1->vector);
 	}
 	// Shuffle Macro
-	#define SIMD_SHUFFLE(destination, operand0, operand1, mask) destination->vector = _mm_shuffle_ps(operand0->vector, operand1->vector, mask);
+	#define SIMD_SHUFFLE(destination, operand0, operand1, x, y, z, w) destination->vector = _mm_shuffle_ps(operand0->vector, operand1->vector, _MM_SHUFFLE(x, y, z, w));
 };
 #endif

@@ -12,9 +12,17 @@
 	#if _MSC_VER
 		#define ALIGNED_MALLOC(size, alignment) _aligned_malloc(size, alignment)
 		#define ALIGNED_FREE(p) _aligned_free(p)
-	#else
+	// Assume we are running on Intel or AMD
+	#elif __SSE__
 		#define ALIGNED_MALLOC(size, alignment) _mm_malloc(size, alignment)
 		#define ALIGNED_FREE(p) _mm_free(p)
+	#else
+		void* ALIGNED_MALLOC(size_t size, size_t alignment) {
+			void* p = 0;
+			posix_memalign(&p, alignment, size);
+			return p;
+		}
+		#define ALIGNED_FREE(p) free(p)
 	#endif
 #else
 	#define ALIGNED_MALLOC(size, alignment) malloc(size)
