@@ -143,3 +143,6 @@ Compare greater than between to vectors and stores result in destination vector.
 
 Compare greater than or equal between to vectors and stores result in destination vector.
 
+##### Function SIMD_Shuffle:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4, x:Int, y:Int, z:Int, w:Int)
+
+Shuffles two vectors and stores the result in a destination vector.
