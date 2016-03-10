@@ -3,11 +3,11 @@
 About
 ---
 
-SIMD module / wrapper for Monkey-X. Currently C++ target and experimental JavaScript supported. Tested with MSVC, MinGW and ARM GCC.
+SIMD module / wrapper for Monkey-X. Currently C++ target and experimental JavaScript supported. Compiled with MSVC, MinGW, ARM GCC and XCode.
 
 This module has been tested with version 85e of Monkey-X.
 
-ARM's NEON tested only on Raspberry PI 2.
+ARM's NEON tested on Raspberry PI 2 and iPhone 5S.
 
 SIMD.js is still experimental technology. You can read more about it [here](https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Global_Objects/SIMD). 
 
