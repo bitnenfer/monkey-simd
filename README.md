@@ -143,6 +143,10 @@ Compare greater than between to vectors and stores result in destination vector.
 
 Compare greater than or equal between to vectors and stores result in destination vector.
 
+##### Function SIMD.GetTarget:Int()
+
+Returns the ID of the current SIMD target. It can be SSE/AVX, ARM NEON or SIMD.js
+
 ##### Function SIMD_Shuffle:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4, x:Int, y:Int, z:Int, w:Int)
 
 Shuffles two vectors and stores the result in a destination vector.
