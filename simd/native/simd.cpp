@@ -152,6 +152,7 @@ struct SIMD // No namespace support on monkey-x
 	{
 		destination->vector = (float32x4_t)vcgeq_f32(operand0->vector, operand1->vector);
 	}
+	FORCE_INLINE static int GetTarget() {return 0;}
 	// Shuffle Macro
 	// Not implementation for shuffle in NEON. Need to implement it.
 	#define SIMD_SHUFFLE(destination, operand0, operand1, x, y, z, w)
@@ -318,6 +319,7 @@ struct SIMD // No namespace support on Monkey-X
 	{
 		destination->vector = _mm_cmpge_ps(operand0->vector, operand1->vector);
 	}
+	FORCE_INLINE static int GetTarget() {return 1;}
 	// Shuffle Macro
 	#define SIMD_SHUFFLE(destination, operand0, operand1, x, y, z, w) destination->vector = _mm_shuffle_ps(operand0->vector, operand1->vector, _MM_SHUFFLE(x, y, z, w));
 };

@@ -13,7 +13,7 @@
 		#define ALIGNED_MALLOC(size, alignment) _aligned_malloc(size, alignment)
 		#define ALIGNED_FREE(p) _aligned_free(p)
 	// Assume we are running on Intel or AMD
-	#elif __SSE__
+	#elif __GNUG__ && _WIN32
 		#define ALIGNED_MALLOC(size, alignment) _mm_malloc(size, alignment)
 		#define ALIGNED_FREE(p) _mm_free(p)
 	#else

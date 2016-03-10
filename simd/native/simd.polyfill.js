@@ -1,5 +1,5 @@
-
-  vim set ts=8 sts=2 et sw=2 tw=79
+/*
+  vim: set ts=8 sts=2 et sw=2 tw=79:
   Copyright (C) 2013
 
   This software is provided 'as-is', without any express or implied
@@ -8,7 +8,7 @@
 
   Permission is granted to anyone to use this software for any purpose,
   including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions
+  freely, subject to the following restrictions:
 
   1. The origin of this software must not be misrepresented; you must not
      claim that you wrote the original software. If you use this software
@@ -17,35 +17,35 @@
   2. Altered source versions must be plainly marked as such, and must not be
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
+*/
 
+// A conforming SIMD.js implementation may contain the following deviations to
+// normal JS numeric behavior:
+//  - Subnormal numbers may or may not be flushed to zero on input or output of
+//    any SIMD operation.
 
- A conforming SIMD.js implementation may contain the following deviations to
- normal JS numeric behavior
-  - Subnormal numbers may or may not be flushed to zero on input or output of
-    any SIMD operation.
-
- Many of the operations in SIMD.js have semantics which correspond to scalar
- operations in JS, however there are a few differences
-  - Vector shifts don't mask the shift count.
-  - Conversions from float to int32 throw on error.
-  - Load and store operations throw when out of bounds.
+// Many of the operations in SIMD.js have semantics which correspond to scalar
+// operations in JS, however there are a few differences:
+//  - Vector shifts don't mask the shift count.
+//  - Conversions from float to int32 throw on error.
+//  - Load and store operations throw when out of bounds.
 
 (function(global) {
 
-if (typeof global.SIMD === undefined) {
-   SIMD module.
+if (typeof global.SIMD === "undefined") {
+  // SIMD module.
   global.SIMD = {};
 }
 
-if (typeof module !== undefined) {
-   For CommonJS modules
+if (typeof module !== "undefined") {
+  // For CommonJS modules
   module.exports = global.SIMD;
 }
 
 var SIMD = global.SIMD;
 
- Buffers for bit casting and coercing lane values to those representable in
- the underlying lane type.
+// Buffers for bit casting and coercing lane values to those representable in
+// the underlying lane type.
 var _f32x4 = new Float32Array(4);
 var _f64x2 = new Float64Array(_f32x4.buffer);
 var _i32x4 = new Int32Array(_f32x4.buffer);
@@ -61,59 +61,59 @@ function convertValue(buffer, value) {
 }
 
 function convertArray(buffer, array) {
-  for (var i = 0; i  array.length; i++)
+  for (var i = 0; i < array.length; i++)
     array[i] = convertValue(buffer, array[i]);
   return array;
 }
 
- Utility functions.
+// Utility functions.
 
 function isInt32(o) {
-  return (o  0) === o;
+  return (o | 0) === o;
 }
 
 function isTypedArray(o) {
-  return (o instanceof Int8Array) 
-         (o instanceof Uint8Array) 
-         (o instanceof Uint8ClampedArray) 
-         (o instanceof Int16Array) 
-         (o instanceof Uint16Array) 
-         (o instanceof Int32Array) 
-         (o instanceof Uint32Array) 
-         (o instanceof Float32Array) 
+  return (o instanceof Int8Array) ||
+         (o instanceof Uint8Array) ||
+         (o instanceof Uint8ClampedArray) ||
+         (o instanceof Int16Array) ||
+         (o instanceof Uint16Array) ||
+         (o instanceof Int32Array) ||
+         (o instanceof Uint32Array) ||
+         (o instanceof Float32Array) ||
          (o instanceof Float64Array);
 }
 
 function minNum(x, y) {
-  return x != x  y 
-         y != y  x 
+  return x != x ? y :
+         y != y ? x :
          Math.min(x, y);
 }
 
 function maxNum(x, y) {
-  return x != x  y 
-         y != y  x 
+  return x != x ? y :
+         y != y ? x :
          Math.max(x, y);
 }
 
 function clamp(a, min, max) {
-  if (a  min)
+  if (a < min)
     return min;
-  if (a  max)
+  if (a > max)
     return max;
   return a;
 }
 
- SIMD implementation functions
+// SIMD implementation functions
 
 function simdCheckLaneIndex(index, lanes) {
   if (!isInt32(index))
     throw new TypeError('Lane index must be an int32');
-  if (index  0  index = lanes)
+  if (index < 0 || index >= lanes)
     throw new RangeError('Lane index must be in bounds');
 }
 
- Global lanes array for constructing SIMD values.
+// Global lanes array for constructing SIMD values.
 var lanes = [];
 
 function simdCreate(type) {
@@ -122,26 +122,26 @@ function simdCreate(type) {
 
 function simdToString(type, a) {
   a = type.fn.check(a);
-  var str = SIMD. + type.name + (;
+  var str = "SIMD." + type.name + "(";
   str += type.fn.extractLane(a, 0);
-  for (var i = 1; i  type.lanes; i++) {
-    str += ,  + type.fn.extractLane(a, i);
+  for (var i = 1; i < type.lanes; i++) {
+    str += ", " + type.fn.extractLane(a, i);
   }
-  return str + );
+  return str + ")";
 }
 
 function simdToLocaleString(type, a) {
   a = type.fn.check(a);
-  var str = SIMD. + type.name + (;
+  var str = "SIMD." + type.name + "(";
   str += type.fn.extractLane(a, 0).toLocaleString();
-  for (var i = 1; i  type.lanes; i++) {
-    str += ,  + type.fn.extractLane(a, i).toLocaleString();
+  for (var i = 1; i < type.lanes; i++) {
+    str += ", " + type.fn.extractLane(a, i).toLocaleString();
   }
-  return str + );
+  return str + ")";
 }
 
 function simdSplat(type, s) {
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     lanes[i] = s;
   return simdCreate(type);
 }
@@ -149,7 +149,7 @@ function simdSplat(type, s) {
 function simdReplaceLane(type, a, i, s) {
   a = type.fn.check(a);
   simdCheckLaneIndex(i, type.lanes);
-  for (var j = 0; j  type.lanes; j++)
+  for (var j = 0; j < type.lanes; j++)
     lanes[j] = type.fn.extractLane(a, j);
   lanes[i] = s;
   return simdCreate(type);
@@ -157,11 +157,11 @@ function simdReplaceLane(type, a, i, s) {
 
 function simdFrom(toType, fromType, a) {
   a = fromType.fn.check(a);
-  for (var i = 0; i  fromType.lanes; i++) {
+  for (var i = 0; i < fromType.lanes; i++) {
     var v = Math.trunc(fromType.fn.extractLane(a, i));
     if (toType.minVal !== undefined &&
-        !(toType.minVal = v && v = toType.maxVal)) {
-      throw new RangeError(Can't convert value);
+        !(toType.minVal <= v && v <= toType.maxVal)) {
+      throw new RangeError("Can't convert value");
     }
     lanes[i] = v;
   }
@@ -179,16 +179,16 @@ function simdSelect(type, selector, a, b) {
   selector = type.boolType.fn.check(selector);
   a = type.fn.check(a);
   b = type.fn.check(b);
-  for (var i = 0; i  type.lanes; i++) {
-    lanes[i] = type.boolType.fn.extractLane(selector, i) 
-               type.fn.extractLane(a, i)  type.fn.extractLane(b, i);
+  for (var i = 0; i < type.lanes; i++) {
+    lanes[i] = type.boolType.fn.extractLane(selector, i) ?
+               type.fn.extractLane(a, i) : type.fn.extractLane(b, i);
   }
   return simdCreate(type);
 }
 
 function simdSwizzle(type, a, indices) {
   a = type.fn.check(a);
-  for (var i = 0; i  indices.length; i++) {
+  for (var i = 0; i < indices.length; i++) {
     simdCheckLaneIndex(indices[i], type.lanes);
     lanes[i] = type.fn.extractLane(a, indices[i]);
   }
@@ -198,10 +198,10 @@ function simdSwizzle(type, a, indices) {
 function simdShuffle(type, a, b, indices) {
   a = type.fn.check(a);
   b = type.fn.check(b);
-  for (var i = 0; i  indices.length; i++) {
-    simdCheckLaneIndex(indices[i], 2  type.lanes);
-    lanes[i] = indices[i]  type.lanes 
-               type.fn.extractLane(a, indices[i]) 
+  for (var i = 0; i < indices.length; i++) {
+    simdCheckLaneIndex(indices[i], 2 * type.lanes);
+    lanes[i] = indices[i] < type.lanes ?
+               type.fn.extractLane(a, indices[i]) :
                type.fn.extractLane(b, indices[i] - type.lanes);
   }
   return simdCreate(type);
@@ -213,101 +213,101 @@ function unaryLogicalNot(a) { return !a; }
 
 function simdUnaryOp(type, op, a) {
   a = type.fn.check(a);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     lanes[i] = op(type.fn.extractLane(a, i));
   return simdCreate(type);
 }
 
 function binaryAnd(a, b) { return a & b; }
-function binaryOr(a, b) { return a  b; }
+function binaryOr(a, b) { return a | b; }
 function binaryXor(a, b) { return a ^ b; }
 function binaryAdd(a, b) { return a + b; }
 function binarySub(a, b) { return a - b; }
-function binaryMul(a, b) { return a  b; }
-function binaryDiv(a, b) { return a  b; }
+function binaryMul(a, b) { return a * b; }
+function binaryDiv(a, b) { return a / b; }
 
 var binaryImul;
 if (typeof Math.imul !== 'undefined') {
   binaryImul = Math.imul;
 } else {
   binaryImul = function(a, b) {
-    var ah = (a  16) & 0xffff;
+    var ah = (a >>> 16) & 0xffff;
     var al = a & 0xffff;
-    var bh = (b  16) & 0xffff;
+    var bh = (b >>> 16) & 0xffff;
     var bl = b & 0xffff;
-     the shift by 0 fixes the sign on the high part
-     the final 0 converts the unsigned value into a signed value
-    return ((al  bl) + (((ah  bl + al  bh)  16)  0)0);
+    // the shift by 0 fixes the sign on the high part
+    // the final |0 converts the unsigned value into a signed value
+    return ((al * bl) + (((ah * bl + al * bh) << 16) >>> 0)|0);
   };
 }
 
 function simdBinaryOp(type, op, a, b) {
   a = type.fn.check(a);
   b = type.fn.check(b);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     lanes[i] = op(type.fn.extractLane(a, i), type.fn.extractLane(b, i));
   return simdCreate(type);
 }
 
 function binaryEqual(a, b) { return a == b; }
 function binaryNotEqual(a, b) { return a != b; }
-function binaryLess(a, b) { return a  b; }
-function binaryLessEqual(a, b) { return a = b; }
-function binaryGreater(a, b) { return a  b; }
-function binaryGreaterEqual(a, b) { return a = b; }
+function binaryLess(a, b) { return a < b; }
+function binaryLessEqual(a, b) { return a <= b; }
+function binaryGreater(a, b) { return a > b; }
+function binaryGreaterEqual(a, b) { return a >= b; }
 
 function simdRelationalOp(type, op, a, b) {
   a = type.fn.check(a);
   b = type.fn.check(b);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     lanes[i] = op(type.fn.extractLane(a, i), type.fn.extractLane(b, i));
   return simdCreate(type.boolType);
 }
 
 function simdAnyTrue(type, a) {
   a = type.fn.check(a);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     if (type.fn.extractLane(a, i)) return true;
   return false;
 }
 
 function simdAllTrue(type, a) {
   a = type.fn.check(a);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     if (!type.fn.extractLane(a, i)) return false;
   return true;
 }
 
-function binaryShiftLeft(a, bits) { return a  bits; }
-function binaryShiftRightArithmetic(a, bits) { return a  bits; }
-function binaryShiftRightLogical(a, bits) { return a  bits; }
+function binaryShiftLeft(a, bits) { return a << bits; }
+function binaryShiftRightArithmetic(a, bits) { return a >> bits; }
+function binaryShiftRightLogical(a, bits) { return a >>> bits; }
 
 function simdShiftOp(type, op, a, bits) {
   a = type.fn.check(a);
-  for (var i = 0; i  type.lanes; i++)
+  for (var i = 0; i < type.lanes; i++)
     lanes[i] = op(type.fn.extractLane(a, i), bits);
   return simdCreate(type);
 }
 
 function simdLoad(type, tarray, index, count) {
   if (!isTypedArray(tarray))
-    throw new TypeError(The 1st argument must be a typed array.);
+    throw new TypeError("The 1st argument must be a typed array.");
   if (!isInt32(index))
-    throw new TypeError(The 2nd argument must be an Int32.);
+    throw new TypeError("The 2nd argument must be an Int32.");
   var bpe = tarray.BYTES_PER_ELEMENT;
-  var bytes = count  type.laneSize;
-  if (index  0  (index  bpe + bytes)  tarray.byteLength)
-    throw new RangeError(The value of index is invalid.);
+  var bytes = count * type.laneSize;
+  if (index < 0 || (index * bpe + bytes) > tarray.byteLength)
+    throw new RangeError("The value of index is invalid.");
 
   var newValue = type.fn();
   var dst = new Uint8Array(newValue.s_.buffer);
-  var src = new Uint8Array(tarray.buffer, tarray.byteOffset + index  bpe, bytes);
+  var src = new Uint8Array(tarray.buffer, tarray.byteOffset + index * bpe, bytes);
 
-  for (var i = 0; i  bytes; i++) {
+  for (var i = 0; i < bytes; i++) {
     dst[i] = src[i];
   }
-  var typeBytes = type.lanes  type.laneSize;
-  for (var i = bytes; i  typeBytes; i++) {
+  var typeBytes = type.lanes * type.laneSize;
+  for (var i = bytes; i < typeBytes; i++) {
     dst[i] = 0;
   }
   return newValue;
@@ -315,32 +315,32 @@ function simdLoad(type, tarray, index, count) {
 
 function simdStore(type, tarray, index, a, count) {
   if (!isTypedArray(tarray))
-    throw new TypeError(The 1st argument must be a typed array.);
+    throw new TypeError("The 1st argument must be a typed array.");
   if (!isInt32(index))
-    throw new TypeError(The 2nd argument must be an Int32.);
+    throw new TypeError("The 2nd argument must be an Int32.");
   var bpe = tarray.BYTES_PER_ELEMENT;
-  var bytes = count  type.laneSize;
-  if (index  0  (index  bpe + bytes)  tarray.byteLength)
-    throw new RangeError(The value of index is invalid.);
+  var bytes = count * type.laneSize;
+  if (index < 0 || (index * bpe + bytes) > tarray.byteLength)
+    throw new RangeError("The value of index is invalid.");
 
   a = type.fn.check(a);
 
-   The underlying buffers are copied byte by byte, to avoid float
-   canonicalization.
+  // The underlying buffers are copied byte by byte, to avoid float
+  // canonicalization.
   var src = new Uint8Array(a.s_.buffer);
-  var dst = new Uint8Array(tarray.buffer, tarray.byteOffset + index  bpe, bytes);
-  for (var i = 0; i  bytes; i++) {
+  var dst = new Uint8Array(tarray.buffer, tarray.byteOffset + index * bpe, bytes);
+  for (var i = 0; i < bytes; i++) {
     dst[i] = src[i];
   }
   return a;
 }
 
- Constructors and extractLane functions are closely related and must be
- polyfilled together.
+// Constructors and extractLane functions are closely related and must be
+// polyfilled together.
 
- Float32x4
-if (typeof SIMD.Float32x4 === undefined 
-    typeof SIMD.Float32x4.extractLane === undefined) {
+// Float32x4
+if (typeof SIMD.Float32x4 === "undefined" ||
+    typeof SIMD.Float32x4.extractLane === "undefined") {
   SIMD.Float32x4 = function(s0, s1, s2, s3) {
     if (!(this instanceof SIMD.Float32x4)) {
       return new SIMD.Float32x4(s0, s1, s2, s3);
@@ -355,23 +355,23 @@ if (typeof SIMD.Float32x4 === undefined
   }
 }
 
- Miscellaneous functions that aren't easily parameterized on type.
+// Miscellaneous functions that aren't easily parameterized on type.
 
-if (typeof SIMD.Float32x4.swizzle === undefined) {
+if (typeof SIMD.Float32x4.swizzle === "undefined") {
   SIMD.Float32x4.swizzle = function(a, s0, s1, s2, s3) {
     return simdSwizzle(float32x4, a, [s0, s1, s2, s3]);
   }
 }
 
-if (typeof SIMD.Float32x4.shuffle === undefined) {
+if (typeof SIMD.Float32x4.shuffle === "undefined") {
   SIMD.Float32x4.shuffle = function(a, b, s0, s1, s2, s3) {
     return simdShuffle(float32x4, a, b, [s0, s1, s2, s3]);
   }
 }
 
- Int32x4
-if (typeof SIMD.Int32x4 === undefined 
-    typeof SIMD.Int32x4.extractLane === undefined) {
+// Int32x4
+if (typeof SIMD.Int32x4 === "undefined" ||
+    typeof SIMD.Int32x4.extractLane === "undefined") {
   SIMD.Int32x4 = function(s0, s1, s2, s3) {
     if (!(this instanceof SIMD.Int32x4)) {
       return new SIMD.Int32x4(s0, s1, s2, s3);
@@ -386,21 +386,21 @@ if (typeof SIMD.Int32x4 === undefined
   }
 }
 
-if (typeof SIMD.Int32x4.swizzle === undefined) {
+if (typeof SIMD.Int32x4.swizzle === "undefined") {
   SIMD.Int32x4.swizzle = function(a, s0, s1, s2, s3) {
     return simdSwizzle(int32x4, a, [s0, s1, s2, s3]);
   }
 }
 
-if (typeof SIMD.Int32x4.shuffle === undefined) {
+if (typeof SIMD.Int32x4.shuffle === "undefined") {
   SIMD.Int32x4.shuffle = function(a, b, s0, s1, s2, s3) {
     return simdShuffle(int32x4, a, b, [s0, s1, s2, s3]);
   }
 }
 
- Int16x8
-if (typeof SIMD.Int16x8 === undefined 
-    typeof SIMD.Int16x8.extractLane === undefined) {
+// Int16x8
+if (typeof SIMD.Int16x8 === "undefined" ||
+    typeof SIMD.Int16x8.extractLane === "undefined") {
   SIMD.Int16x8 = function(s0, s1, s2, s3, s4, s5, s6, s7) {
     if (!(this instanceof SIMD.Int16x8)) {
       return new SIMD.Int16x8(s0, s1, s2, s3, s4, s5, s6, s7);
@@ -415,21 +415,21 @@ if (typeof SIMD.Int16x8 === undefined
   }
 }
 
-if (typeof SIMD.Int16x8.swizzle === undefined) {
+if (typeof SIMD.Int16x8.swizzle === "undefined") {
   SIMD.Int16x8.swizzle = function(a, s0, s1, s2, s3, s4, s5, s6, s7) {
     return simdSwizzle(int16x8, a, [s0, s1, s2, s3, s4, s5, s6, s7]);
   }
 }
 
-if (typeof SIMD.Int16x8.shuffle === undefined) {
+if (typeof SIMD.Int16x8.shuffle === "undefined") {
   SIMD.Int16x8.shuffle = function(a, b, s0, s1, s2, s3, s4, s5, s6, s7) {
     return simdShuffle(int16x8, a, b, [s0, s1, s2, s3, s4, s5, s6, s7]);
   }
 }
 
- Int8x16
-if (typeof SIMD.Int8x16 === undefined 
-    typeof SIMD.Int8x16.extractLane === undefined) {
+// Int8x16
+if (typeof SIMD.Int8x16 === "undefined" ||
+    typeof SIMD.Int8x16.extractLane === "undefined") {
   SIMD.Int8x16 = function(s0, s1, s2, s3, s4, s5, s6, s7,
                           s8, s9, s10, s11, s12, s13, s14, s15) {
     if (!(this instanceof SIMD.Int8x16)) {
@@ -447,7 +447,7 @@ if (typeof SIMD.Int8x16 === undefined
   }
 }
 
-if (typeof SIMD.Int8x16.swizzle === undefined) {
+if (typeof SIMD.Int8x16.swizzle === "undefined") {
   SIMD.Int8x16.swizzle = function(a, s0, s1, s2, s3, s4, s5, s6, s7,
                                      s8, s9, s10, s11, s12, s13, s14, s15) {
     return simdSwizzle(int8x16, a, [s0, s1, s2, s3, s4, s5, s6, s7,
@@ -455,7 +455,7 @@ if (typeof SIMD.Int8x16.swizzle === undefined) {
   }
 }
 
-if (typeof SIMD.Int8x16.shuffle === undefined) {
+if (typeof SIMD.Int8x16.shuffle === "undefined") {
   SIMD.Int8x16.shuffle = function(a, b, s0, s1, s2, s3, s4, s5, s6, s7,
                                         s8, s9, s10, s11, s12, s13, s14, s15) {
     return simdShuffle(int8x16, a, b, [s0, s1, s2, s3, s4, s5, s6, s7,
@@ -463,9 +463,9 @@ if (typeof SIMD.Int8x16.shuffle === undefined) {
   }
 }
 
- Uint32x4
-if (typeof SIMD.Uint32x4 === undefined 
-    typeof SIMD.Uint32x4.extractLane === undefined) {
+// Uint32x4
+if (typeof SIMD.Uint32x4 === "undefined" ||
+    typeof SIMD.Uint32x4.extractLane === "undefined") {
   SIMD.Uint32x4 = function(s0, s1, s2, s3) {
     if (!(this instanceof SIMD.Uint32x4)) {
       return new SIMD.Uint32x4(s0, s1, s2, s3);
@@ -480,21 +480,21 @@ if (typeof SIMD.Uint32x4 === undefined
   }
 }
 
-if (typeof SIMD.Uint32x4.swizzle === undefined) {
+if (typeof SIMD.Uint32x4.swizzle === "undefined") {
   SIMD.Uint32x4.swizzle = function(a, s0, s1, s2, s3) {
     return simdSwizzle(uint32x4, a, [s0, s1, s2, s3]);
   }
 }
 
-if (typeof SIMD.Uint32x4.shuffle === undefined) {
+if (typeof SIMD.Uint32x4.shuffle === "undefined") {
   SIMD.Uint32x4.shuffle = function(a, b, s0, s1, s2, s3) {
     return simdShuffle(uint32x4, a, b, [s0, s1, s2, s3]);
   }
 }
 
- Uint16x8
-if (typeof SIMD.Uint16x8 === undefined 
-    typeof SIMD.Uint16x8.extractLane === undefined) {
+// Uint16x8
+if (typeof SIMD.Uint16x8 === "undefined" ||
+    typeof SIMD.Uint16x8.extractLane === "undefined") {
   SIMD.Uint16x8 = function(s0, s1, s2, s3, s4, s5, s6, s7) {
     if (!(this instanceof SIMD.Uint16x8)) {
       return new SIMD.Uint16x8(s0, s1, s2, s3, s4, s5, s6, s7);
@@ -509,21 +509,21 @@ if (typeof SIMD.Uint16x8 === undefined
   }
 }
 
-if (typeof SIMD.Uint16x8.swizzle === undefined) {
+if (typeof SIMD.Uint16x8.swizzle === "undefined") {
   SIMD.Uint16x8.swizzle = function(a, s0, s1, s2, s3, s4, s5, s6, s7) {
     return simdSwizzle(uint16x8, a, [s0, s1, s2, s3, s4, s5, s6, s7]);
   }
 }
 
-if (typeof SIMD.Uint16x8.shuffle === undefined) {
+if (typeof SIMD.Uint16x8.shuffle === "undefined") {
   SIMD.Uint16x8.shuffle = function(a, b, s0, s1, s2, s3, s4, s5, s6, s7) {
     return simdShuffle(uint16x8, a, b, [s0, s1, s2, s3, s4, s5, s6, s7]);
   }
 }
 
- Uint8x16
-if (typeof SIMD.Uint8x16 === undefined 
-    typeof SIMD.Uint8x16.extractLane === undefined) {
+// Uint8x16
+if (typeof SIMD.Uint8x16 === "undefined" ||
+    typeof SIMD.Uint8x16.extractLane === "undefined") {
   SIMD.Uint8x16 = function(s0, s1, s2, s3, s4, s5, s6, s7,
                            s8, s9, s10, s11, s12, s13, s14, s15) {
     if (!(this instanceof SIMD.Uint8x16)) {
@@ -541,7 +541,7 @@ if (typeof SIMD.Uint8x16 === undefined
   }
 }
 
-if (typeof SIMD.Uint8x16.swizzle === undefined) {
+if (typeof SIMD.Uint8x16.swizzle === "undefined") {
   SIMD.Uint8x16.swizzle = function(a, s0, s1, s2, s3, s4, s5, s6, s7,
                                       s8, s9, s10, s11, s12, s13, s14, s15) {
     return simdSwizzle(uint8x16, a, [s0, s1, s2, s3, s4, s5, s6, s7,
@@ -549,7 +549,7 @@ if (typeof SIMD.Uint8x16.swizzle === undefined) {
   }
 }
 
-if (typeof SIMD.Uint8x16.shuffle === undefined) {
+if (typeof SIMD.Uint8x16.shuffle === "undefined") {
   SIMD.Uint8x16.shuffle = function(a, b, s0, s1, s2, s3, s4, s5, s6, s7,
                                          s8, s9, s10, s11, s12, s13, s14, s15) {
     return simdShuffle(uint8x16, a, b, [s0, s1, s2, s3, s4, s5, s6, s7,
@@ -557,9 +557,9 @@ if (typeof SIMD.Uint8x16.shuffle === undefined) {
   }
 }
 
- Bool32x4
-if (typeof SIMD.Bool32x4 === undefined 
-    typeof SIMD.Bool32x4.extractLane === undefined) {
+// Bool32x4
+if (typeof SIMD.Bool32x4 === "undefined" ||
+    typeof SIMD.Bool32x4.extractLane === "undefined") {
   SIMD.Bool32x4 = function(s0, s1, s2, s3) {
     if (!(this instanceof SIMD.Bool32x4)) {
       return new SIMD.Bool32x4(s0, s1, s2, s3);
@@ -574,9 +574,9 @@ if (typeof SIMD.Bool32x4 === undefined
   }
 }
 
- Bool16x8
-if (typeof SIMD.Bool16x8 === undefined 
-    typeof SIMD.Bool16x8.extractLane === undefined) {
+// Bool16x8
+if (typeof SIMD.Bool16x8 === "undefined" ||
+    typeof SIMD.Bool16x8.extractLane === "undefined") {
   SIMD.Bool16x8 = function(s0, s1, s2, s3, s4, s5, s6, s7) {
     if (!(this instanceof SIMD.Bool16x8)) {
       return new SIMD.Bool16x8(s0, s1, s2, s3, s4, s5, s6, s7);
@@ -591,9 +591,9 @@ if (typeof SIMD.Bool16x8 === undefined
   }
 }
 
- Bool8x16
-if (typeof SIMD.Bool8x16 === undefined 
-    typeof SIMD.Bool8x16.extractLane === undefined) {
+// Bool8x16
+if (typeof SIMD.Bool8x16 === "undefined" ||
+    typeof SIMD.Bool8x16.extractLane === "undefined") {
   SIMD.Bool8x16 = function(s0, s1, s2, s3, s4, s5, s6, s7,
                            s8, s9, s10, s11, s12, s13, s14, s15) {
     if (!(this instanceof SIMD.Bool8x16)) {
@@ -611,181 +611,181 @@ if (typeof SIMD.Bool8x16 === undefined
   }
 }
 
- Type data to generate the remaining functions.
+// Type data to generate the remaining functions.
 
 var float32x4 = {
-  name Float32x4,
-  fn SIMD.Float32x4,
-  lanes 4,
-  laneSize 4,
-  buffer _f32x4,
-  view Float32Array,
-  mulFn binaryMul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        add, sub, mul, div, neg, abs, min, max, minNum, maxNum,
-        reciprocalApproximation, reciprocalSqrtApproximation, sqrt,
-        load, load1, load2, load3, store, store1, store2, store3],
+  name: "Float32x4",
+  fn: SIMD.Float32x4,
+  lanes: 4,
+  laneSize: 4,
+  buffer: _f32x4,
+  view: Float32Array,
+  mulFn: binaryMul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "add", "sub", "mul", "div", "neg", "abs", "min", "max", "minNum", "maxNum",
+        "reciprocalApproximation", "reciprocalSqrtApproximation", "sqrt",
+        "load", "load1", "load2", "load3", "store", "store1", "store2", "store3"],
 }
 
 var int32x4 = {
-  name Int32x4,
-  fn SIMD.Int32x4,
-  lanes 4,
-  laneSize 4,
-  minVal -0x80000000,
-  maxVal 0x7FFFFFFF,
-  buffer _i32x4,
-  notFn unaryBitwiseNot,
-  view Int32Array,
-  mulFn binaryImul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul, neg,
-        shiftLeftByScalar, shiftRightByScalar,
-        load, load1, load2, load3, store, store1, store2, store3],
+  name: "Int32x4",
+  fn: SIMD.Int32x4,
+  lanes: 4,
+  laneSize: 4,
+  minVal: -0x80000000,
+  maxVal: 0x7FFFFFFF,
+  buffer: _i32x4,
+  notFn: unaryBitwiseNot,
+  view: Int32Array,
+  mulFn: binaryImul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul", "neg",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "load", "load1", "load2", "load3", "store", "store1", "store2", "store3"],
 }
 
 var int16x8 = {
-  name Int16x8,
-  fn SIMD.Int16x8,
-  lanes 8,
-  laneSize 2,
-  minVal -0x8000,
-  maxVal 0x7FFF,
-  buffer _i16x8,
-  notFn unaryBitwiseNot,
-  view Int16Array,
-  mulFn binaryMul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul, neg,
-        shiftLeftByScalar, shiftRightByScalar,
-        addSaturate, subSaturate,
-        load, store],
+  name: "Int16x8",
+  fn: SIMD.Int16x8,
+  lanes: 8,
+  laneSize: 2,
+  minVal: -0x8000,
+  maxVal: 0x7FFF,
+  buffer: _i16x8,
+  notFn: unaryBitwiseNot,
+  view: Int16Array,
+  mulFn: binaryMul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul", "neg",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "addSaturate", "subSaturate",
+        "load", "store"],
 }
 
 var int8x16 = {
-  name Int8x16,
-  fn SIMD.Int8x16,
-  lanes 16,
-  laneSize 1,
-  minVal -0x80,
-  maxVal 0x7F,
-  buffer _i8x16,
-  notFn unaryBitwiseNot,
-  view Int8Array,
-  mulFn binaryMul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul, neg,
-        shiftLeftByScalar, shiftRightByScalar,
-        addSaturate, subSaturate,
-        load, store],
+  name: "Int8x16",
+  fn: SIMD.Int8x16,
+  lanes: 16,
+  laneSize: 1,
+  minVal: -0x80,
+  maxVal: 0x7F,
+  buffer: _i8x16,
+  notFn: unaryBitwiseNot,
+  view: Int8Array,
+  mulFn: binaryMul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul", "neg",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "addSaturate", "subSaturate",
+        "load", "store"],
 }
 
 var uint32x4 = {
-  name Uint32x4,
-  fn SIMD.Uint32x4,
-  lanes 4,
-  laneSize 4,
-  minVal 0,
-  maxVal 0xFFFFFFFF,
-  unsigned true,
-  buffer _ui32x4,
-  notFn unaryBitwiseNot,
-  view Uint32Array,
-  mulFn binaryImul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul,
-        shiftLeftByScalar, shiftRightByScalar,
-        load, load1, load2, load3, store, store1, store2, store3],
+  name: "Uint32x4",
+  fn: SIMD.Uint32x4,
+  lanes: 4,
+  laneSize: 4,
+  minVal: 0,
+  maxVal: 0xFFFFFFFF,
+  unsigned: true,
+  buffer: _ui32x4,
+  notFn: unaryBitwiseNot,
+  view: Uint32Array,
+  mulFn: binaryImul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "load", "load1", "load2", "load3", "store", "store1", "store2", "store3"],
 }
 
 var uint16x8 = {
-  name Uint16x8,
-  fn SIMD.Uint16x8,
-  lanes 8,
-  laneSize 2,
-  unsigned true,
-  minVal 0,
-  maxVal 0xFFFF,
-  buffer _ui16x8,
-  notFn unaryBitwiseNot,
-  view Uint16Array,
-  mulFn binaryMul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul,
-        shiftLeftByScalar, shiftRightByScalar,
-        addSaturate, subSaturate,
-        load, store],
+  name: "Uint16x8",
+  fn: SIMD.Uint16x8,
+  lanes: 8,
+  laneSize: 2,
+  unsigned: true,
+  minVal: 0,
+  maxVal: 0xFFFF,
+  buffer: _ui16x8,
+  notFn: unaryBitwiseNot,
+  view: Uint16Array,
+  mulFn: binaryMul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "addSaturate", "subSaturate",
+        "load", "store"],
 }
 
 var uint8x16 = {
-  name Uint8x16,
-  fn SIMD.Uint8x16,
-  lanes 16,
-  laneSize 1,
-  unsigned true,
-  minVal 0,
-  maxVal 0xFF,
-  buffer _ui8x16,
-  notFn unaryBitwiseNot,
-  view Uint8Array,
-  mulFn binaryMul,
-  fns [check, splat, replaceLane, select,
-        equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-        and, or, xor, not,
-        add, sub, mul,
-        shiftLeftByScalar, shiftRightByScalar,
-        addSaturate, subSaturate,
-        load, store],
+  name: "Uint8x16",
+  fn: SIMD.Uint8x16,
+  lanes: 16,
+  laneSize: 1,
+  unsigned: true,
+  minVal: 0,
+  maxVal: 0xFF,
+  buffer: _ui8x16,
+  notFn: unaryBitwiseNot,
+  view: Uint8Array,
+  mulFn: binaryMul,
+  fns: ["check", "splat", "replaceLane", "select",
+        "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+        "and", "or", "xor", "not",
+        "add", "sub", "mul",
+        "shiftLeftByScalar", "shiftRightByScalar",
+        "addSaturate", "subSaturate",
+        "load", "store"],
 }
 
 var bool32x4 = {
-  name Bool32x4,
-  fn SIMD.Bool32x4,
-  lanes 4,
-  laneSize 4,
-  notFn unaryLogicalNot,
-  fns [check, splat, replaceLane,
-        allTrue, anyTrue, and, or, xor, not],
+  name: "Bool32x4",
+  fn: SIMD.Bool32x4,
+  lanes: 4,
+  laneSize: 4,
+  notFn: unaryLogicalNot,
+  fns: ["check", "splat", "replaceLane",
+        "allTrue", "anyTrue", "and", "or", "xor", "not"],
 }
 
 var bool16x8 = {
-  name Bool16x8,
-  fn SIMD.Bool16x8,
-  lanes 8,
-  laneSize 2,
-  notFn unaryLogicalNot,
-  fns [check, splat, replaceLane,
-        allTrue, anyTrue, and, or, xor, not],
+  name: "Bool16x8",
+  fn: SIMD.Bool16x8,
+  lanes: 8,
+  laneSize: 2,
+  notFn: unaryLogicalNot,
+  fns: ["check", "splat", "replaceLane",
+        "allTrue", "anyTrue", "and", "or", "xor", "not"],
 }
 
 var bool8x16 = {
-  name Bool8x16,
-  fn SIMD.Bool8x16,
-  lanes 16,
-  laneSize 1,
-  notFn unaryLogicalNot,
-  fns [check, splat, replaceLane,
-        allTrue, anyTrue, and, or, xor, not],
+  name: "Bool8x16",
+  fn: SIMD.Bool8x16,
+  lanes: 16,
+  laneSize: 1,
+  notFn: unaryLogicalNot,
+  fns: ["check", "splat", "replaceLane",
+        "allTrue", "anyTrue", "and", "or", "xor", "not"],
 }
 
- Each SIMD type has a corresponding Boolean SIMD type, which is returned by
- relational ops.
+// Each SIMD type has a corresponding Boolean SIMD type, which is returned by
+// relational ops.
 float32x4.boolType = int32x4.boolType = uint32x4.boolType = bool32x4;
 int16x8.boolType = uint16x8.boolType = bool16x8;
 int8x16.boolType = uint8x16.boolType = bool8x16;
 
- SIMD fromtype types.
+// SIMD from<type> types.
 float32x4.from = [int32x4, uint32x4];
 int32x4.from = [float32x4, uint32x4];
 int16x8.from = [uint16x8];
@@ -794,7 +794,7 @@ uint32x4.from = [float32x4, int32x4];
 uint16x8.from = [int16x8];
 uint8x16.from = [int8x16];
 
- SIMD fromtypeBits types.
+// SIMD from<type>Bits types.
 float32x4.fromBits = [int32x4, int16x8, int8x16, uint32x4, uint16x8, uint8x16];
 int32x4.fromBits = [float32x4, int16x8, int8x16, uint32x4, uint16x8, uint8x16];
 int16x8.fromBits = [float32x4, int32x4, int8x16, uint32x4, uint16x8, uint8x16];
@@ -808,12 +808,12 @@ var simdTypes = [float32x4,
                  uint32x4, uint16x8, uint8x16,
                  bool32x4, bool16x8, bool8x16];
 
- SIMD Phase2 types.
+// SIMD Phase2 types.
 
 if (typeof simdPhase2 !== 'undefined') {
-   Float64x2
-  if (typeof SIMD.Float64x2 === undefined 
-      typeof SIMD.Float64x2.extractLane === undefined) {
+  // Float64x2
+  if (typeof SIMD.Float64x2 === "undefined" ||
+      typeof SIMD.Float64x2.extractLane === "undefined") {
     SIMD.Float64x2 = function(s0, s1) {
       if (!(this instanceof SIMD.Float64x2)) {
         return new SIMD.Float64x2(s0, s1);
@@ -828,21 +828,21 @@ if (typeof simdPhase2 !== 'undefined') {
     }
   }
 
-  if (typeof SIMD.Float64x2.swizzle === undefined) {
+  if (typeof SIMD.Float64x2.swizzle === "undefined") {
     SIMD.Float64x2.swizzle = function(a, s0, s1) {
       return simdSwizzle(float64x2, a, [s0, s1]);
     }
   }
 
-  if (typeof SIMD.Float64x2.shuffle === undefined) {
+  if (typeof SIMD.Float64x2.shuffle === "undefined") {
     SIMD.Float64x2.shuffle = function(a, b, s0, s1) {
       return simdShuffle(float64x2, a, b, [s0, s1]);
     }
   }
 
-   Bool64x2
-  if (typeof SIMD.Bool64x2 === undefined 
-      typeof SIMD.Bool64x2.extractLane === undefined) {
+  // Bool64x2
+  if (typeof SIMD.Bool64x2 === "undefined" ||
+      typeof SIMD.Bool64x2.extractLane === "undefined") {
     SIMD.Bool64x2 = function(s0, s1) {
       if (!(this instanceof SIMD.Bool64x2)) {
         return new SIMD.Bool64x2(s0, s1);
@@ -858,28 +858,28 @@ if (typeof simdPhase2 !== 'undefined') {
   }
 
   var float64x2 = {
-    name Float64x2,
-    fn SIMD.Float64x2,
-    lanes 2,
-    laneSize 8,
-    buffer _f64x2,
-    view Float64Array,
-    mulFn binaryMul,
-    fns [check, splat, replaceLane, select,
-          equal, notEqual, lessThan, lessThanOrEqual, greaterThan, greaterThanOrEqual,
-          add, sub, mul, div, neg, abs, min, max, minNum, maxNum,
-          reciprocalApproximation, reciprocalSqrtApproximation, sqrt,
-          load, store],
+    name: "Float64x2",
+    fn: SIMD.Float64x2,
+    lanes: 2,
+    laneSize: 8,
+    buffer: _f64x2,
+    view: Float64Array,
+    mulFn: binaryMul,
+    fns: ["check", "splat", "replaceLane", "select",
+          "equal", "notEqual", "lessThan", "lessThanOrEqual", "greaterThan", "greaterThanOrEqual",
+          "add", "sub", "mul", "div", "neg", "abs", "min", "max", "minNum", "maxNum",
+          "reciprocalApproximation", "reciprocalSqrtApproximation", "sqrt",
+          "load", "store"],
   }
 
   var bool64x2 = {
-    name Bool64x2,
-    fn SIMD.Bool64x2,
-    lanes 2,
-    laneSize 8,
-    notFn unaryLogicalNot,
-    fns [check, splat, replaceLane,
-          allTrue, anyTrue, and, or, xor, not],
+    name: "Bool64x2",
+    fn: SIMD.Bool64x2,
+    lanes: 2,
+    laneSize: 8,
+    notFn: unaryLogicalNot,
+    fns: ["check", "splat", "replaceLane",
+          "allTrue", "anyTrue", "and", "or", "xor", "not"],
   }
 
   float64x2.boolType = bool64x2;
@@ -899,23 +899,23 @@ if (typeof simdPhase2 !== 'undefined') {
   simdTypes.push(bool64x2);
 }
 
- SIMD prototype functions.
+// SIMD prototype functions.
 var prototypeFns = {
-  valueOf
+  valueOf:
     function(type) {
       return function() {
-        throw new TypeError(type.name +  cannot be converted to a number);
+        throw new TypeError(type.name + " cannot be converted to a number");
       }
     },
 
-  toString
+  toString:
     function(type) {
       return function() {
         return simdToString(type, this);
       }
     },
 
-  toLocaleString
+  toLocaleString:
     function(type) {
       return function() {
         return simdToLocaleString(type, this);
@@ -923,236 +923,236 @@ var prototypeFns = {
     },
 };
 
- SIMD constructor functions.
+// SIMD constructor functions.
 
 var simdFns = {
-  check
+  check:
     function(type) {
       return function(a) {
         if (!(a instanceof type.fn)) {
-          throw new TypeError(Argument is not a  + type.name + .);
+          throw new TypeError("Argument is not a " + type.name + ".");
         }
         return a;
       }
     },
 
-  splat
+  splat:
     function(type) {
       return function(s) { return simdSplat(type, s); }
     },
 
-  replaceLane
+  replaceLane:
     function(type) {
       return function(a, i, s) { return simdReplaceLane(type, a, i, s); }
     },
 
-  allTrue
+  allTrue:
     function(type) {
       return function(a) { return simdAllTrue(type, a); }
     },
 
-  anyTrue
+  anyTrue:
     function(type) {
       return function(a) { return simdAnyTrue(type, a); }
     },
 
-  and
+  and:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binaryAnd, a, b);
       }
     },
 
-  or
+  or:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binaryOr, a, b);
       }
     },
 
-  xor
+  xor:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binaryXor, a, b);
       }
     },
 
-  not
+  not:
     function(type) {
       return function(a) {
         return simdUnaryOp(type, type.notFn, a);
       }
     },
 
-  equal
+  equal:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryEqual, a, b);
       }
     },
 
-  notEqual
+  notEqual:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryNotEqual, a, b);
       }
     },
 
-  lessThan
+  lessThan:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryLess, a, b);
       }
     },
 
-  lessThanOrEqual
+  lessThanOrEqual:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryLessEqual, a, b);
       }
     },
 
-  greaterThan
+  greaterThan:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryGreater, a, b);
       }
     },
 
-  greaterThanOrEqual
+  greaterThanOrEqual:
     function(type) {
       return function(a, b) {
         return simdRelationalOp(type, binaryGreaterEqual, a, b);
       }
     },
 
-  add
+  add:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binaryAdd, a, b);
       }
     },
 
-  sub
+  sub:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binarySub, a, b);
       }
     },
 
-  mul
+  mul:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, type.mulFn, a, b);
       }
     },
 
-  div
+  div:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, binaryDiv, a, b);
       }
     },
 
-  neg
+  neg:
     function(type) {
       return function(a) {
         return simdUnaryOp(type, unaryNeg, a);
       }
     },
 
-  abs
+  abs:
     function(type) {
       return function(a) {
         return simdUnaryOp(type, Math.abs, a);
       }
     },
 
-  min
+  min:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, Math.min, a, b);
       }
     },
 
-  max
+  max:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, Math.max, a, b);
       }
     },
 
-  minNum
+  minNum:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, minNum, a, b);
       }
     },
 
-  maxNum
+  maxNum:
     function(type) {
       return function(a, b) {
         return simdBinaryOp(type, maxNum, a, b);
       }
     },
 
-  load
+  load:
     function(type) {
       return function(tarray, index) {
         return simdLoad(type, tarray, index, type.lanes);
       }
     },
 
-  load1
+  load1:
     function(type) {
       return function(tarray, index) {
         return simdLoad(type, tarray, index, 1);
       }
     },
 
-  load2
+  load2:
     function(type) {
       return function(tarray, index) {
         return simdLoad(type, tarray, index, 2);
       }
     },
 
-  load3
+  load3:
     function(type) {
       return function(tarray, index) {
         return simdLoad(type, tarray, index, 3);
       }
     },
 
-  store
+  store:
     function(type) {
       return function(tarray, index, a) {
         return simdStore(type, tarray, index, a, type.lanes);
       }
     },
 
-  store1
+  store1:
     function(type) {
       return function(tarray, index, a) {
         return simdStore(type, tarray, index, a, 1);
       }
     },
 
-  store2
+  store2:
     function(type) {
       return function(tarray, index, a) {
         return simdStore(type, tarray, index, a, 2);
       }
     },
 
-  store3
+  store3:
     function(type) {
       return function(tarray, index, a) {
         return simdStore(type, tarray, index, a, 3);
       }
     },
 
-  select
+  select:
     function(type) {
       return function(selector, a, b) {
         return simdSelect(type, selector, a, b);
@@ -1160,7 +1160,7 @@ var simdFns = {
     },
 
 
-  reciprocalApproximation
+  reciprocalApproximation:
     function(type) {
       return function(a) {
         a = type.fn.check(a);
@@ -1168,7 +1168,7 @@ var simdFns = {
       }
     },
 
-  reciprocalSqrtApproximation
+  reciprocalSqrtApproximation:
     function(type) {
       return function(a) {
         a = type.fn.check(a);
@@ -1176,37 +1176,37 @@ var simdFns = {
       }
     },
 
-  sqrt
+  sqrt:
     function(type) {
       return function(a) {
         return simdUnaryOp(type, Math.sqrt, a);
       }
     },
 
-  shiftLeftByScalar
+  shiftLeftByScalar:
     function(type) {
       return function(a, bits) {
-        bits &= type.laneSize  8 - 1;
+        bits &= type.laneSize * 8 - 1;
         return simdShiftOp(type, binaryShiftLeft, a, bits);
       }
     },
 
-  shiftRightByScalar
+  shiftRightByScalar:
     function(type) {
       if (type.unsigned) {
         return function(a, bits) {
-          bits &= type.laneSize  8 - 1;
+          bits &= type.laneSize * 8 - 1;
           return simdShiftOp(type, binaryShiftRightLogical, a, bits);
         }
       } else {
         return function(a, bits) {
-          bits &= type.laneSize  8 - 1;
+          bits &= type.laneSize * 8 - 1;
           return simdShiftOp(type, binaryShiftRightArithmetic, a, bits);
         }
       }
     },
 
-  addSaturate
+  addSaturate:
     function(type) {
       function addSaturate(a, b) {
         return clamp(a + b, type.minVal, type.maxVal);
@@ -1214,7 +1214,7 @@ var simdFns = {
       return function(a, b) { return simdBinaryOp(type, addSaturate, a, b); }
     },
 
-  subSaturate
+  subSaturate:
     function(type) {
       function subSaturate(a, b) {
         return clamp(a - b, type.minVal, type.maxVal);
@@ -1223,38 +1223,38 @@ var simdFns = {
     },
 }
 
- Install functions.
+// Install functions.
 
 simdTypes.forEach(function(type) {
-   Install each prototype function on each SIMD prototype.
+  // Install each prototype function on each SIMD prototype.
   var simdFn = type.fn;
   var proto = simdFn.prototype;
   for (var name in prototypeFns) {
     if (!proto.hasOwnProperty(name))
       proto[name] = prototypeFns[name](type);
   }
-   Install regular functions.
+  // Install regular functions.
   type.fns.forEach(function(name) {
-    if (typeof simdFn[name] === undefined)
+    if (typeof simdFn[name] === "undefined")
       simdFn[name] = simdFns[name](type);
   });
-   Install 'fromTIMD' functions.
+  // Install 'fromTIMD' functions.
   if (type.from) {
     type.from.forEach(function(fromType) {
-      var name = from + fromType.name;
-      var toType = type;   pull type into closure.
-      if (typeof type.fn[name] === undefined) {
+      var name = "from" + fromType.name;
+      var toType = type;  // pull type into closure.
+      if (typeof type.fn[name] === "undefined") {
         type.fn[name] =
             function(a) { return simdFrom(toType, fromType, a); }
       }
     });
   }
-   Install 'fromTIMDBits' functions.
+  // Install 'fromTIMDBits' functions.
   if (type.fromBits) {
     type.fromBits.forEach(function(fromType) {
-      var name = from + fromType.name + Bits;
-      var toType = type;   pull type into closure.
-      if (typeof type.fn[name] === undefined) {
+      var name = "from" + fromType.name + "Bits";
+      var toType = type;  // pull type into closure.
+      if (typeof type.fn[name] === "undefined") {
         type.fn[name] =
             function(a) { return simdFromBits(toType, fromType, a); }
       }
@@ -1262,15 +1262,15 @@ simdTypes.forEach(function(type) {
   }
 });
 
- If we're in a browser, the global namespace is named 'window'. If we're
- in node, it's named 'global'. If we're in a web worker, it's named
- 'self'. If we're in a shell, 'this' might work.
-})(typeof window !== undefined
-    window
-    (typeof process === 'object' &&
+// If we're in a browser, the global namespace is named 'window'. If we're
+// in node, it's named 'global'. If we're in a web worker, it's named
+// 'self'. If we're in a shell, 'this' might work.
+})(typeof window !== "undefined"
+   ? window
+   : (typeof process === 'object' &&
       typeof require === 'function' &&
       typeof global === 'object')
-      global
-      typeof self === 'object'
-        self
-        this);
+     ? global
+     : typeof self === 'object'
+       ? self
+       : this);

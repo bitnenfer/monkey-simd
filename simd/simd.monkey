@@ -54,6 +54,7 @@ Class SIMD
 	Function CompareLowerThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function GetTarget:Int()
 End
 
 ' Float32x4 Shuffle.
@@ -102,9 +103,18 @@ Class SIMD="MONKEY_SIMD"
 	Function CompareLowerThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThan:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
 	Function CompareGreaterThanOrEqual:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4)
+	Function GetTarget:Int()
 End
 
 ' Float32x4 Shuffle.
 Function SIMD_Shuffle:Void(destination:Float32x4, operandR:Float32x4, operandL:Float32x4, x:Int, y:Int, z:Int, w:Int) = "MONKEY_SIMD_SHUFFLE"
 
 #Endif
+
+Public
+
+Class SIMDTarget
+	Const NEON:Int = 0
+	Const SSE:Int = 1
+	Const SIMD_JS:Int = 2
+End

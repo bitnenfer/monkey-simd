@@ -91,7 +91,8 @@ var MONKEY_SIMD = {
 	},
 	CompareGreaterThanOrEqual: function(destination, operandR, operandL) {
 		destination.vector = SIMD.Float32x4.greaterThanOrEqual(operandR.vector, operandL.vector);
-	}
+	},
+	GetTarget: function () {return 2;}
 };
 
 function MONKEY_SIMD_SHUFFLE(destination, operandR, operandL, x, y, z, w) {
